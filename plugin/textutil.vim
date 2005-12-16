@@ -1,38 +1,41 @@
 " textutil.vim : Vim plugin for editing rtf,rtfd,doc,wordml files.
+"
 " Name Of File: textutil.vim
 " Maintainer:   omi taku <advweb@jcom.home.ne.jp>
 " URL:          http://members.jcom.home.ne.jp/advweb/
-" Date:         2005/12/13
-" Version:      0.1 (initial upload)
+" Script URL:   http://www.vim.org/scripts/script.php?script_id=1432
+" Last Change:  2005/12/16
+" Version:      0.1.1
 "
-" Installation
-" ------------
-" 1. Copy the textutil.vim script to the $HOME/.vim/plugin directory.
-"    Refer to ':help add-plugin', ':help add-global-plugin' and ':help runtimepath'
-"    for more details about Vim plugins.
-" 2. Restart Vim.
+" Installation:
+"    1. Copy the textutil.vim script to the $HOME/.vim/plugin directory.
+"       Refer to ':help add-plugin', ':help add-global-plugin' and ':help runtimepath'
+"       for more details about Vim plugins.
+"    2. Restart Vim.
 "
-" Usage
-" -----
-" 1. When you open rtf, rtfd, doc or wordml file with Vim,
+" Usage:
+"    When you open rtf, rtfd, doc or wordml file with Vim,
 "    editing file format is automatically converted to plain text.
 "    And when you write file, file format is automatically converted to
 "    rtf, rtfd, doc or wordml file format.
 "
-" Configuration
-" -------------
-" 1. g:textutil_txt_encoding
+" Configuration:
 "    When this script convert rtf, rtfd, doc or wordml file to plain text with textutil command,
-"    use this encoding.
-"    default value is 'utf-8'.
+"    this script use "g:textutil_txt_encoding" encoding.
+"    Default value of "g:textutil_txt_encoding" is 'utf-8'.
+"    You want to change text encoding, set "g:textutil_txt_encoding" in your $HOME/.vimrc file.
 "    for example,
+"
 "        :let g:textutil_txt_encoding='Shift_JIS'
 "
-" Note
-" ----
-" 1. This script is based on 'textutil' command.
+" Note:
+"    This script is based on 'textutil' command.
 "    So this script will only run on MacOS 10.4 or later.
 "
+" History:
+"    0.1.1 o Add "inputencoding" textutil command option.
+"    0.1   o Initial upload.
+
 
 " if plugin is already loaded then, not load plugin.
 if exists("loaded_textutil") || &cp || exists("#BufReadPre#*.rtf")
@@ -52,24 +55,33 @@ augroup textutil
 
 	" rtf
 	autocmd BufReadPre,FileReadPre		*.rtf    setlocal bin
-	autocmd BufReadPost,FileReadPost	*.rtf    call s:read("textutil -convert txt -encoding " . g:textutil_txt_encoding)
-	autocmd BufWritePost,FileWritePost	*.rtf    call s:write("textutil -convert rtf")
+	autocmd BufReadPost,FileReadPost	*.rtf    call s:read(s:read_cmd("txt"))
+	autocmd BufWritePost,FileWritePost	*.rtf    call s:write(s:write_cmd("rtf"))
 
 	" rtfd
 	autocmd BufReadPre,FileReadPre		*.rtfd   setlocal bin
-	autocmd BufReadPost,FileReadPost	*.rtfd   call s:read("textutil -convert txt -encoding " . g:textutil_txt_encoding)
-	autocmd BufWritePost,FileWritePost	*.rtfd   call s:write("textutil -convert rtfd")
+	autocmd BufReadPost,FileReadPost	*.rtfd   call s:read(s:read_cmd("txt"))
+	autocmd BufWritePost,FileWritePost	*.rtfd   call s:write(s:write_cmd("rtfd"))
 
 	" doc
 	autocmd BufReadPre,FileReadPre		*.doc    setlocal bin
-	autocmd BufReadPost,FileReadPost	*.doc    call s:read("textutil -convert txt -encoding " . g:textutil_txt_encoding)
-	autocmd BufWritePost,FileWritePost	*.doc    call s:write("textutil -convert doc")
+	autocmd BufReadPost,FileReadPost	*.doc    call s:read(s:read_cmd("txt"))
+	autocmd BufWritePost,FileWritePost	*.doc    call s:write(s:write_cmd("doc"))
 
 	" wordml
 	autocmd BufReadPre,FileReadPre		*.wordml setlocal bin
-	autocmd BufReadPost,FileReadPost	*.wordml call s:read("textutil -convert txt -encoding " . g:textutil_txt_encoding)
-	autocmd BufWritePost,FileWritePost	*.wordml call s:write("textutil -convert wordml")
+	autocmd BufReadPost,FileReadPost	*.wordml call s:read(s:read_cmd("txt"))
+	autocmd BufWritePost,FileWritePost	*.wordml call s:write(s:write_cmd("wordml"))
 augroup END
+
+" return read command and option
+fun s:read_cmd(ft)
+	return "textutil -convert " . a:ft . " -encoding " . g:textutil_txt_encoding
+endfun
+" return write command and option
+fun s:write_cmd(ft)
+	return "textutil -convert " . a:ft . " -inputencoding " . g:textutil_txt_encoding
+endfun
 
 " Function to check that executing "cmd [-f]" works.
 " The result is cached in s:have_"cmd" for speed.
